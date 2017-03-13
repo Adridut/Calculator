@@ -31,11 +31,17 @@ var Style = StyleSheet.create({
 },
 displayText: {
      color: 'white',
-     fontSize: 38,
+     fontSize: 30,
      fontWeight: 'bold',
      textAlign: 'right',
-     padding: 20
+     padding: 15
  },
+ displayResult: {
+      color: 'white',
+      fontSize: 20,
+      textAlign: 'right',
+      padding: 15
+  },
  inputButtonHighlighted: {
     backgroundColor: '#193441'
 }

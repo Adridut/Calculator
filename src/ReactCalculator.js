@@ -19,6 +19,8 @@ class ReactCalculator extends Component {
         this.state = {
             previousInputValue: 0,
             inputValue: 0,
+            actualValue: 0,
+            result: 0,
             selectedSymbol: null
         }
     }
@@ -28,6 +30,7 @@ class ReactCalculator extends Component {
             <View style={Style.rootContainer}>
                 <View style={Style.displayContainer}>
                     <Text style={Style.displayText}>{this.state.inputValue}</Text>
+                    <Text style={Style.displayResult}>{this.state.result}</Text>
                 </View>
                 <View style={Style.inputContainer}>{this._renderInputButton()}</View>
             </View>
@@ -42,8 +45,7 @@ class ReactCalculator extends Component {
             for (var i = 0; i < row.length; i++) {
                 let input = row[i];
 
-                inputRow.push(<InputButton value={input} highlight={this.state.selectedSymbol === input}
-                  onPress={this._onInputButtonPressed.bind(this, input)} key={r + "-" + i}/>);
+                inputRow.push(<InputButton value={input} highlight={this.state.selectedSymbol === input} onPress={this._onInputButtonPressed.bind(this, input)} key={r + "-" + i}/>);
             }
 
             views.push(
@@ -63,50 +65,60 @@ class ReactCalculator extends Component {
     }
 
     _handleNumberInput(num) {
-        let inputValue = (this.state.inputValue * 10) + num;
+        let actualValue = (this.state.actualValue * 10) + num;
+        symbol = this.state.selectedSymbol,
+        previousInputValue = this.state.previousInputValue;
 
-        this.setState({inputValue: inputValue})
+        this.setState({
+            actualValue: actualValue,
+            inputValue: (previousInputValue + symbol + actualValue),
+            result: eval(previousInputValue + symbol + actualValue)
+        })
     }
 
-  _handleStringInput(str) {
-switch (str) {
-    case 'CE':
-        this.setState({
-          previousInputValue: 0,
-          inputValue: 0,
-          selectedSymbol: null
-        });
-        break;
-    case 'C':
-        inputValue = (this.state.inputValue - (this.state.inputValue % 10)) / 10;
-        this.setState({
-            inputValue: inputValue,
-            selectedSymbol: null
-          });
-          break;
-    case '/':
-    case '*':
-    case '+':
-    case '-':
-        this.setState({selectedSymbol: str, previousInputValue: this.state.inputValue, inputValue: 0});
-        break;
-    case '=':
-        let symbol = this.state.selectedSymbol,
-            inputValue = this.state.inputValue,
-            previousInputValue = this.state.previousInputValue;
+    _handleStringInput(str) {
+        switch (str) {
+            case 'CE':
+                this.setState({previousInputValue: 0, inputValue: 0, result: 0, selectedSymbol: null, actualValue: 0});
+                break;
+            case 'C':
+                    inputValue = this.state.inputValue
+                    if (inputValue.slice(-1).slice(-1) == '+'){
+                      inputValue = inputValue.slice(0, -1);
+                      inputValue = inputValue.slice(0, -1);
+                    }else{
+                      inputValue = this.state.inputValue.slice(0, -1);
+                    }
+                this.setState({
+                  inputValue: inputValue,
+                  selectedSymbol: null,
+                  result: eval(inputValue)
+                });
+                break;
+            case '/':
+            case '*':
+            case '+':
+            case '-':
+                this.setState({selectedSymbol: str, previousInputValue: this.state.inputValue, actualValue: 0});
+                break;
+            case '=':
+                let symbol = this.state.selectedSymbol,
+                    inputValue = this.state.inputValue,
+                    previousInputValue = this.state.previousInputValue;
 
-        if (!symbol) {
-            return;
+                if (!symbol) {
+                    return;
+                }
+
+                this.setState({
+                    previousInputValue: 0,
+                    inputValue: (previousInputValue + symbol + inputValue),
+                    result: eval(previousInputValue + symbol + inputValue),
+                    selectedSymbol: null
+                });
+                break;
         }
-
-        this.setState({
-            previousInputValue: 0,
-            inputValue: eval(previousInputValue + symbol + inputValue),
-            selectedSymbol: null
-        });
-        break;
-}
-}
+    }
 }
 
 AppRegistry.registerComponent('AwesomeProject', () => ReactCalculator);
