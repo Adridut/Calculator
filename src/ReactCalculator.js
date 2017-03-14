@@ -85,10 +85,14 @@ class ReactCalculator extends Component {
                 break;
             case 'C':
                     inputValue = this.state.inputValue
-                    if (inputValue.charAt(inputValue.length - 2) == '+'){
+                    if (inputValue.charAt(inputValue.length - 2) == '+' || inputValue.charAt(inputValue.length - 2) == '-' ||
+                  inputValue.charAt(inputValue.length - 2) == '/' || inputValue.charAt(inputValue.length - 2) == '*' || inputValue.charAt(inputValue.length - 2) == '.'){
                       inputValue = inputValue.slice(0, -2);
                     }else{
                       inputValue = inputValue.slice(0, -1);
+                    }
+                    if (inputValue.length == 0){
+                      inputValue = 0;
                     }
                 this.setState({
                   inputValue: inputValue,
@@ -96,7 +100,7 @@ class ReactCalculator extends Component {
                   result: eval(inputValue)
                 });
                 break;
-            case '.':    
+            case '.':
             case '/':
             case '*':
             case '+':
@@ -109,6 +113,7 @@ class ReactCalculator extends Component {
                 inputValue: result,
                 selectedSymbol: null
               })
+              break;
         }
     }
 }
