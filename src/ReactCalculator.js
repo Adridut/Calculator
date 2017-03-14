@@ -19,6 +19,7 @@ class ReactCalculator extends Component {
         this.state = {
             previousInputValue: 0,
             inputValue: 0,
+            lastInput: 0,
             actualValue: 0,
             result: 0,
             selectedSymbol: null
@@ -65,7 +66,8 @@ class ReactCalculator extends Component {
     }
 
     _handleNumberInput(num) {
-        let actualValue = (this.state.actualValue * 10) + num;
+        lastInput = num;
+        actualValue = (this.state.actualValue * 10) + num;
         symbol = this.state.selectedSymbol,
         previousInputValue = this.state.previousInputValue;
 
@@ -83,11 +85,10 @@ class ReactCalculator extends Component {
                 break;
             case 'C':
                     inputValue = this.state.inputValue
-                    if (inputValue.slice(-1).slice(-1) == '+'){
-                      inputValue = inputValue.slice(0, -1);
-                      inputValue = inputValue.slice(0, -1);
+                    if (inputValue.charAt(inputValue.length - 2) == '+'){
+                      inputValue = inputValue.slice(0, -2);
                     }else{
-                      inputValue = this.state.inputValue.slice(0, -1);
+                      inputValue = inputValue.slice(0, -1);
                     }
                 this.setState({
                   inputValue: inputValue,
@@ -102,21 +103,11 @@ class ReactCalculator extends Component {
                 this.setState({selectedSymbol: str, previousInputValue: this.state.inputValue, actualValue: 0});
                 break;
             case '=':
-                let symbol = this.state.selectedSymbol,
-                    inputValue = this.state.inputValue,
-                    previousInputValue = this.state.previousInputValue;
-
-                if (!symbol) {
-                    return;
-                }
-
-                this.setState({
-                    previousInputValue: 0,
-                    inputValue: (previousInputValue + symbol + inputValue),
-                    result: eval(previousInputValue + symbol + inputValue),
-                    selectedSymbol: null
-                });
-                break;
+              result = this.state.result;
+              this.setState({
+                inputValue: result,
+                selectedSymbol: null
+              })
         }
     }
 }
