@@ -96,6 +96,7 @@ class ReactCalculator extends Component {
                   result: eval(inputValue)
                 });
                 break;
+            case '.':    
             case '/':
             case '*':
             case '+':
