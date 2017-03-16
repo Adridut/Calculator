@@ -1,3 +1,5 @@
+// @flow
+
 import React, {Component} from 'react';
 import {Text, AppRegistry, View} from 'react-native';
 import Style from './Style';
@@ -13,16 +15,26 @@ const inputButtons = [
 
 class ReactCalculator extends Component {
 
+    state: {
+        previousInputValue: string,
+        inputValue: string,
+        lastInput: string,
+        actualValue: string,
+        result: number,
+        selectedSymbol: string
+    }
+
     constructor(props) {
         super(props);
 
         this.state = {
             previousInputValue: 0,
             inputValue: 0,
-            lastInput: 0,
             actualValue: 0,
             result: 0,
-            selectedSymbol: null
+            selectedSymbol: '',
+            inputs: new Array,
+            count : -1
         }
     }
 
@@ -37,6 +49,7 @@ class ReactCalculator extends Component {
             </View>
         )
     }
+
     _renderInputButton() {
         let views = [];
         for (var r = 0; r < inputButtons.length; r++) {
@@ -46,7 +59,8 @@ class ReactCalculator extends Component {
             for (var i = 0; i < row.length; i++) {
                 let input = row[i];
 
-                inputRow.push(<InputButton value={input} highlight={this.state.selectedSymbol === input} onPress={this._onInputButtonPressed.bind(this, input)} key={r + "-" + i}/>);
+                inputRow.push(<InputButton value={input} highlight={this.state.selectedSymbol === input}
+                                           onPress={this._onInputButtonPressed.bind(this, input)} key={r + "-" + i}/>);
             }
 
             views.push(
@@ -66,9 +80,11 @@ class ReactCalculator extends Component {
     }
 
     _handleNumberInput(num) {
-        lastInput = num;
         actualValue = (this.state.actualValue * 10) + num;
-        symbol = this.state.selectedSymbol,
+        symbol = this.state.selectedSymbol;
+        if (symbol == null){
+            symbol = '';
+        }
         previousInputValue = this.state.previousInputValue;
 
         this.setState({
@@ -84,20 +100,35 @@ class ReactCalculator extends Component {
                 this.setState({previousInputValue: 0, inputValue: 0, result: 0, selectedSymbol: null, actualValue: 0});
                 break;
             case 'C':
-                    inputValue = this.state.inputValue
-                    if (inputValue.charAt(inputValue.length - 2) == '+' || inputValue.charAt(inputValue.length - 2) == '-' ||
-                  inputValue.charAt(inputValue.length - 2) == '/' || inputValue.charAt(inputValue.length - 2) == '*' || inputValue.charAt(inputValue.length - 2) == '.'){
-                      inputValue = inputValue.slice(0, -2);
-                    }else{
-                      inputValue = inputValue.slice(0, -1);
-                    }
-                    if (inputValue.length == 0){
-                      inputValue = 0;
-                    }
+                inputValue = this.state.inputValue.toString();
+                actualValue = this.state.actualValue.toString();
+                inputs = this.state.inputs;
+                count = this.state.count;
+                previousInputValue = this.state.previousInputValue.toString();
+                if (inputValue.charAt(inputValue.length - 2) == '+' || inputValue.charAt(inputValue.length - 2) == '-' ||
+                    inputValue.charAt(inputValue.length - 2) == '/' || inputValue.charAt(inputValue.length - 2) == '*' || inputValue.charAt(inputValue.length - 2) == '.') {
+                    inputValue = inputValue.slice(0, -2);
+                    previousInputValue = previousInputValue.slice(0, -2);
+                    actualValue = this.state.inputs[count];
+                } else {
+                    actualValue = actualValue.slice(0, -1);
+                    inputValue = inputValue.slice(0, -1);
+                }
+                if (inputValue.length == 0) {
+                    inputValue = 0;
+                    previousInputValue = 0;
+                    actualValue = 0;
+                    count = -1;
+                    inputs = [];
+                }
                 this.setState({
-                  inputValue: inputValue,
-                  selectedSymbol: null,
-                  result: eval(inputValue)
+                    inputValue: inputValue,
+                    previousInputValue: previousInputValue,
+                    actualValue: actualValue,
+                    selectedSymbol: null,
+                    result: eval(inputValue),
+                    count : count,
+                    inputs: inputs
                 });
                 break;
             case '.':
@@ -105,15 +136,20 @@ class ReactCalculator extends Component {
             case '*':
             case '+':
             case '-':
-                this.setState({selectedSymbol: str, previousInputValue: this.state.inputValue, actualValue: 0});
+                inputs = this.state.inputs;
+                inputs.push(this.state.inputValue);
+                count = this.state.count + 1
+                this.setState({selectedSymbol: str, previousInputValue: this.state.inputValue, actualValue: 0, inputs: inputs, count: count});
                 break;
             case '=':
-              result = this.state.result;
-              this.setState({
-                inputValue: result,
-                selectedSymbol: null
-              })
-              break;
+                result = this.state.result;
+                this.setState({
+                    inputValue: result,
+                    actualValue: 0,
+                    previousInputValue: 0,
+                    selectedSymbol: null
+                })
+                break;
         }
     }
 }
